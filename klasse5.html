@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klasse 5 - Grammar Mastery</title>
+    <style>
+        :root {
+            --grade-color: #3b82f6; 
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #001f3f 100%);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --text-color: #e6f7ff;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --gold: #ffd700;
+            --neutral-border: rgba(255, 255, 255, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: 10px;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-gradient); color: var(--text-color); margin: 0; min-height: 100vh; }
+        .container { width: 100%; max-width: 1100px; padding: 40px 20px; margin: 0 auto; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { background: linear-gradient(to right, #93c5fd, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5rem; }
+        
+        .info-box { background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 15px; padding: 20px; margin-bottom: 30px; }
+        .info-box h4 { margin-top: 0; color: #60a5fa; }
+        
+        .accordion-item { background: rgba(255,255,255,0.03); border-radius: 15px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--neutral-border); transition: opacity 0.3s; }
+        .accordion-header { padding: 18px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; background: rgba(255,255,255,0.02); }
+        .accordion-content { display: none; padding: 25px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        .accordion-item.active .accordion-content { display: block; }
+        .accordion-item.done { border-color: var(--success-color); }
+        .done-header { background: rgba(16, 185, 129, 0.1) !important; color: #a7f3d0; }
+        .accordion-item.locked { opacity: 0.5; }
+        .accordion-item.locked .accordion-header { cursor: not-allowed; }
+
+        .gap-input { width: 150px; padding: 8px; border: 2px solid var(--neutral-border); border-radius: 8px; background: rgba(0,0,0,0.4); color: white; text-align: center; }
+        .gap-input.correct { border-color: var(--success-color); background: rgba(76, 175, 80, 0.2); }
+        .gap-input.incorrect { border-color: var(--error-color); background: rgba(244, 67, 54, 0.2); }
+        .feedback-box { color: #ff9e9e; font-size: 0.9em; margin-top: 5px; display: none; }
+        .exercise-button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+    </style>
+    <script src="shared-gamification.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="view active">
+            <header>
+                <h1>Grammar Mastery Klasse 5</h1>
+                <p>Simple Present vs. Present Progressive</p>
+            </header>
+            <button class="exercise-button" onclick="showTopic('5_PRES_CONTRAST')">Start Übung</button>
+        </div>
+
+        <!-- TOPIC VIEW -->
+        <div id="view-topic" class="view">
+            <button class="back-btn" onclick="showView('dashboard')">← Zurück</button>
+            <h2 id="topic-title">Simple Present vs. Present Progressive</h2>
+            <div class="info-box" id="topic-info">
+                <h4>Grammar Check</h4>
+                <p><b>Simple Present:</b> Für Gewohnheiten und Fakten (Signalwörter: always, usually, every day).<br>
+                <b>Present Progressive:</b> Für Dinge, die GENAU JETZT passieren (Signalwörter: now, at the moment, look!).</p>
+            </div>
+            <div id="exercise-accordion">
+                <div class="accordion-item" id="item-ex1"><div class="accordion-header" onclick="toggleAccordion(1)"><span id="label-ex1">Exercise 1</span><span class="status-icon" id="status-ex1">🔒 Locked</span></div><div class="accordion-content" id="content-ex1"></div></div>
+                <div class="accordion-item" id="item-ex2"><div class="accordion-header" onclick="toggleAccordion(2)"><span id="label-ex2">Exercise 2</span><span class="status-icon" id="status-ex2">🔒 Locked</span></div><div class="accordion-content" id="content-ex2"></div></div>
+                <div class="accordion-item" id="item-ex3"><div class="accordion-header" onclick="toggleAccordion(3)"><span id="label-ex3">Exercise 3</span><span class="status-icon" id="status-ex3">🔒 Locked</span></div><div class="accordion-content" id="content-ex3"></div></div>
+                <div class="accordion-item" id="item-ex4"><div class="accordion-header" onclick="toggleAccordion(4)"><span id="label-ex4">Exercise 4</span><span class="status-icon" id="status-ex4">🔒 Locked</span></div><div class="accordion-content" id="content-ex4"></div></div>
+                <div class="accordion-item" id="item-ex5"><div class="accordion-header" onclick="toggleAccordion(5)"><span id="label-ex5">Exercise 5</span><span class="status-icon" id="status-ex5">🔒 Locked</span></div><div class="accordion-content" id="content-ex5"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = JSON.parse(localStorage.getItem('grammar_g5_mastery_final')) || {};
+
+        const exData = [
+            { id: 1, type: 'cloze', items: [{textBefore:"I usually", prompt:"(get up)", textAfter:"at 7.", correct:["get up"]}]},
+            { id: 2, type: 'cloze', items: [{textBefore:"Look! He", prompt:"(run)", textAfter:"fast.", correct:["is running"]}]},
+            { id: 3, type: 'cloze', items: [{textBefore:"We", prompt:"(watch)", textAfter:"TV now.", correct:["are watching"]}]},
+            { id: 4, type: 'cloze', items: [{textBefore:"She", prompt:"(play)", textAfter:"tennis every day.", correct:["plays"]}]},
+            { id: 5, type: 'cloze', items: [{textBefore:"Listen! They", prompt:"(sing)", textAfter:".", correct:["are singing"]}] }
+        ];
+
+        function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById('view-' + id).classList.add('active'); }
+        
+        function showTopic(id) {
+            for(let i=1; i<=5; i++) updateStatus(i);
+            showView('topic');
+        }
+
+        function toggleAccordion(num) {
+            if (num > 1 && !state[num - 1]) { alert("Erst die vorherige Übung lösen!"); return; }
+            const item = document.getElementById('item-ex'+num);
+            if (item.classList.contains('active')) { item.classList.remove('active'); } 
+            else { 
+                document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                renderEx(num);
+            }
+        }
+
+        function renderEx(num) {
+            const container = document.getElementById('content-ex'+num);
+            if(container.innerHTML !== "") return;
+            const data = exData[num-1];
+            let h = `<div class="cloze-text">`;
+            data.items.forEach((item, i) => {
+                h += `${item.textBefore} <input type="text" id="gap-${num}-${i}" class="gap-input" placeholder="${item.prompt}"> ${item.textAfter} <div id="fb-${num}-${i}" class="feedback-box"></div>`;
+            });
+            h += `</div><button class="exercise-button" onclick="checkEx(${num})">Check</button>`;
+            container.innerHTML = h;
+        }
+
+        function checkEx(num) {
+            const items = exData[num-1].items; let ok = 0;
+            items.forEach((item, i) => {
+                const el = document.getElementById(`gap-${num}-${i}`);
+                const fb = document.getElementById(`fb-${num}-${i}`);
+                if(item.correct.includes(el.value.toLowerCase().trim())) { el.className="gap-input correct"; fb.style.display="none"; ok++; }
+                else { el.className="gap-input incorrect"; fb.style.display="block"; fb.innerText="Falsch, versuch es nochmal!"; }
+            });
+            if(ok === items.length) markDone(num);
+        }
+
+        function markDone(num) {
+            state[num] = true; 
+            localStorage.setItem('grammar_g5_mastery_final', JSON.stringify(state));
+            updateStatus(num);
+            alert("Super! Weiter geht's.");
+        }
+
+        function updateStatus(num) {
+            const item = document.getElementById('item-ex' + num);
+            const status = document.getElementById('status-ex' + num);
+            if (state[num]) { item.classList.add('done'); status.innerText = "✅ Gelöst"; item.querySelector('.accordion-header').classList.add('done-header'); }
+            else if (num === 1 || state[num - 1]) { item.classList.remove('locked'); status.innerText = "🔓 Offen"; }
+            else { item.classList.add('locked'); status.innerText = "🔒 Locked"; }
+        }
+    </script>
+</body>
+</html>
